@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetToolBox.BlobStorage.Azure;
 using NetToolBox.SpeechRecognition.Abstractions;
-using NetToolBox.SpeechRecognition.Azure;
 using NETToolBox.BlobStorage.Abstractions;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NetToolBox.SpeechRecognition.TestHarness
@@ -29,7 +29,11 @@ namespace NetToolBox.SpeechRecognition.TestHarness
             var blobFactory = serviceProvider.GetRequiredService<IBlobStorageFactory>();
             var blobClient = blobFactory.GetBlobStorage(new Uri(blobConnectionString));
             var blobStream = await blobClient.DownloadFileAsStreamAsync("speech.wav");
-            var recognizedText = await recognizer.RecognizeSpeechFromPullWavStreamAsync(blobStream);
+
+            var httpClient = new HttpClient();
+            var httpStream = await httpClient.GetStreamAsync(new Uri(""));
+
+            var recognizedText = await recognizer.RecognizeSpeechFromPullWavStreamAsync(httpStream);
 
             Console.WriteLine(recognizedText);
             Console.ReadLine();
@@ -38,8 +42,7 @@ namespace NetToolBox.SpeechRecognition.TestHarness
         private static void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(builder => builder.AddConsole());
-            services.Configure<AzureSpeechRecognizerSettings>(Configuration.GetSection("AzureSpeechRecognizerSettings"));
-            services.AddScoped<ISpeechRecognizer, AzureSpeechRecognizer>();
+            services.AddAzureSpeechRecognizer(Configuration.GetSection("AzureSpeechRecognizerSettings"));
             services.AddAzureBlobStorageFactory();
         }
     }

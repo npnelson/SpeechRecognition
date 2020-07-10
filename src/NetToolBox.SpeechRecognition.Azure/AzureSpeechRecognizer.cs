@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NetToolBox.SpeechRecognition.Azure
 {
-    public sealed class AzureSpeechRecognizer : ISpeechRecognizer
+    internal sealed class AzureSpeechRecognizer : ISpeechRecognizer
     {
         private readonly IOptionsMonitor<AzureSpeechRecognizerSettings> _settingsOptionsMonitor;
         private readonly ILogger<AzureSpeechRecognizer> _logger;
